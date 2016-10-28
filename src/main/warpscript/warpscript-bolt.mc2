@@ -62,7 +62,7 @@
   // [4]: SourceComponent
   // [3]: SourceStreamId
   // [2]: 'MessageId'
-  // TOP: [ value-of-field-1 value-of-field-0 ... ]
+  // TOP: { 'field-1' value-of-field-1 'field-0' value-of-field-0 ... }
   //
   'macro'
 <%
