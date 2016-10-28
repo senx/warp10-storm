@@ -1,0 +1,149 @@
+//
+//   Copyright 2016  Cityzen Data
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+//
+
+  apply plugin: 'java';
+  apply plugin: 'eclipse';
+  apply plugin: 'maven';
+  apply plugin: 'maven-publish';
+  apply plugin: 'com.jfrog.bintray'
+
+buildscript {
+  repositories {
+    mavenCentral()
+    jcenter()
+  }
+
+  dependencies {
+    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
+  }
+}
+
+// Gets the version name from the latest Git tag
+// if no commit occurs -> the name of the tag likes 0.0.1
+// if commit occurs -> 0.0.1-12-aabb1122 (number of commits + version number)
+
+def getVersionName = { ->
+  def stdout = new ByteArrayOutputStream()
+  exec {
+    commandLine 'git', 'describe', '--tags'
+    standardOutput = stdout
+  }
+  return stdout.toString().trim()
+}
+
+  configurations {
+    tools
+    deployerJars
+  }
+
+  repositories {
+        jcenter()
+        maven {
+            url 'https://repository.apache.org/content/groups/public'
+        }
+        mavenCentral()
+        mavenLocal()
+        maven {
+            url "http://maven.twttr.com"
+        }
+        // bedatadriven - http://www.renjin.org/#downloads
+        maven {
+            url "http://nexus.bedatadriven.com/content/groups/public/"
+        }
+        maven {
+            url "http://repo.opengeo.org/"
+        }
+
+        maven {
+            url 'https://dl.bintray.com/hbs/maven'
+        }
+
+        maven {
+            url 'https://dl.bintray.com/cityzendata/maven'
+        }
+    maven {
+      url "https://clojars.org/repo"
+    }
+
+/*
+    mavenCentral()
+    jcenter()
+    maven {
+      url "https://repository.apache.org/service/local/repositories/releases/content"
+    }
+    maven {
+      url 'https://dl.bintray.com/cityzendata/maven'
+    }
+    maven {
+      url 'https://dl.bintray.com/hbs/maven'
+    }
+*/
+  }
+
+  //
+  // Java Compilation flags
+  //
+
+  compileJava {
+  }
+
+  //
+  // Project dependencies
+  //
+
+  dependencies {
+    //
+    // WarpScript
+    //
+    compile group: 'io.warp10', name: 'warpscript', version: '1.0.17'
+
+    //
+    // Apache Storm
+    //
+    compile group: 'org.apache.storm', name: 'storm-core', version: '1.0.2'
+
+    //
+    // MQTT Client
+    //
+    compile group: 'org.fusesource.mqtt-client', name: 'mqtt-client', version: '1.14'
+
+    //
+    // Jetty WebSocket Client
+    //
+    compile group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version: '9.3.7.v20160115'
+
+    //UPLOAD ARTIFACTS THROUGH SSH
+    deployerJars 'org.apache.maven.wagon:wagon-ssh-external:2.8'
+  }
+
+  bintray {
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+
+    publications = [ 'warp10-storm' ]
+
+    pkg {
+      repo = 'maven'
+      name = 'warp10-flink'
+      licenses = ['Apache-2.0']
+      vcsUrl = 'https://github.com/cityzendata/warp10-storm.git'
+      version {
+        name = getVersionName()
+        released  = new Date()
+        vcsTag = getVersionName()
+      }
+    }
+  }
