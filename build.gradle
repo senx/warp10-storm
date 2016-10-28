@@ -14,12 +14,6 @@
 //   limitations under the License.
 //
 
-  apply plugin: 'java';
-  apply plugin: 'eclipse';
-  apply plugin: 'maven';
-  apply plugin: 'maven-publish';
-  apply plugin: 'com.jfrog.bintray'
-
 buildscript {
   repositories {
     mavenCentral()
@@ -30,6 +24,16 @@ buildscript {
     classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
   }
 }
+
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'maven'
+    id 'maven-publish'
+    id 'com.jfrog.bintray' version '1.7'
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
+}
+
 
 // Gets the version name from the latest Git tag
 // if no commit occurs -> the name of the tag likes 0.0.1
@@ -147,3 +151,17 @@ def getVersionName = { ->
       }
     }
   }
+
+  shadowJar {
+    zip64 = true
+    classifier = ''
+    manifest {
+      attributes("Implementation-Title": "Warp 10 Storm")
+      attributes("Implementation-Version": getVersionName())
+    }
+    //exclude 'storm-*.jar'
+    dependencies {
+      exclude(dependency('org.apache.storm:storm-core:'))
+    }
+  }
+
