@@ -1,0 +1,73 @@
+//
+// WarpScript Bolt
+//
+// A WarpScript Bolt executes a WarpScript macro for each
+// tuple it receives.
+//
+
+{
+  //
+  // Type of node
+  //
+  'type' 'bolt'
+
+  //
+  // Unique id of the node
+  //
+  'id' 'bolt-0'
+  
+  //
+  // Parallelism with which to run the node
+  //
+  'parallelism' 3
+
+  //
+  // Set to true to display debug messages while the node is executed
+  //
+  'debug' true
+
+  //
+  // Definition of inputs. This is a map of maps.
+  // The outer key is the id of the node from which
+  // we wish to receive data.
+  // The inner key is the id of the stream and
+  // the associated value is the grouping to use.
+  // Valid values for grouping are:
+  //
+  // 'shuffle'
+  // 'none'
+  // 'global'
+  // 'local'
+  // 'all'
+  // 'fields:<FIELDS>' where <FIELDS> is a comma separated list of fields
+  //
+  'input' { 'spout-0' { 'stream-0' 'shuffle' } }
+
+  //
+  // Output definition. This is a map of stream id
+  // to stream schema, each stream schema being a list
+  // of field names
+  //
+  'output' { 'stream-1' [ 'outfield' ] }
+
+  //
+  // Actual macro to execute.
+  // The macro should leave on the stack a map whose keys are the
+  // output stream ids and whose values are lists of lists of tuple
+  // values (one value per field in the stream schema).
+  //
+  // When the macro is called, the stack will have the following content:
+  //
+  // [5]: SourceTask
+  // [4]: SourceComponent
+  // [3]: SourceStreamId
+  // [2]: 'MessageId'
+  // TOP: [ value-of-field-1 value-of-field-0 ... ]
+  //
+  'macro'
+<%
+  SNAPSHOT [ SWAP ] 'value' STORE
+  $value 0 GET _storm.LOG
+  { 'stream-1' [ $value ] }
+%>
+}

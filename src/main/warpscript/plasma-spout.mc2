@@ -1,0 +1,78 @@
+//
+// Plasma Spout
+//
+// This spout subscribes to Geo Time Series on a Plasma endpoint
+// and executes a macro on each received Geo Time Series data.
+// The macro will get a wrapped version of the Geo Time Series data
+// on the stack.
+// Note that a macro may be called with a Geo Time Series containing
+// multiple datapoints.
+//
+
+{
+  //
+  // Type of the node
+  //
+  'type' 'spout'
+
+  //
+  // Unique id of the node
+  //
+  'id' 'spout-0'
+
+  //
+  // Output definition. This is a map of stream id
+  // to stream schema, each stream schema being a list
+  // of field names
+  //
+  'output' { 'stream-0' [ 'field-2' 'field-1' ] }
+
+  //
+  // Parallelism with which to run the spout
+  // This should generally be left to 1
+  //
+  'parallelism' 1
+
+  //
+  // How often (in ms) should the subscriptions be updated?
+  //
+  'every' 60000
+
+  //
+  // Set to true to display debug messages while the node is executed
+  //
+  'debug' true
+
+  //
+  // URL of the Plasma endpoint to use
+  //
+  'plasma.endpoint' 'wss://warp.cityzendata.net/api/v0/plasma'
+
+  //
+  // Token to use to subscribe to Geo Time Series
+  //
+  'token' '.....'
+
+  //
+  // List of Geo Time Series selectors
+  //
+  'selectors' [ '~.*{cell=prod}' ]
+
+  //
+  // Macro to run on each received Geo Time Series data.
+  // The macro should leave on the stack a map whose keys are the
+  // output stream ids and whose values are lists of lists of tuple
+  // values (one value per field in the stream schema).
+  //
+  'macro'
+<%
+  UNWRAP LABELS 'id' GET 'value' STORE
+  { 'stream-0' [ [
+      // value of 'field-2'
+      'wrapper'
+      // value of 'field-1'
+      $value ]
+    ]
+  }
+%>
+}

@@ -1,0 +1,63 @@
+//
+// WarpScript Spout
+//
+// This spout periodically executes a WarpScript macro
+// and dispatches what it left on the stack to the various
+// streams
+//
+
+{
+  //
+  // Type of node
+  //
+  'type' 'spout'
+
+  //
+  // Unique id of the node
+  //
+  'id' 'spout-0'
+
+  //
+  // Output definition. This is a map of stream id
+  // to stream schema, each stream schema being a list
+  // of field names
+  //
+  'output' { 'stream-0' [ 'field-2' 'field-1' ] }
+
+  //
+  // Parallelism with which to run the spout
+  //
+  'parallelism' 2
+
+  //
+  // How often (in ms) should the macro be executed
+  //
+  'every' 500
+
+  //
+  // Set to true to display debug messages while the node is executed
+  //
+  'debug' true
+
+  //
+  // Actual macro to run.
+  // The macro should leave on the stack a map whose keys are the
+  // output stream ids and whose values are lists of lists of tuple
+  // values (one value per field in the stream schema).
+  //
+  'macro'
+  0 'counter' STORE
+<%
+  $counter 1 + 'counter' STORE
+  //
+  // We use REXEC to access data from a remote Warp 10
+  //
+  'NOW' 'https://host:port/api/v0/exec' REXEC 'now' STORE
+  //
+  // We use the _storm.LOG function which outputs a line on
+  // the console
+  //
+  $counter _storm.LOG
+  { 'stream-0' [ [ 'now' $now ] ] } // [ 'now' 42 ] ] }
+%>
+}
