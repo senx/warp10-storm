@@ -7,15 +7,11 @@ import io.warp10.script.WarpScriptLib;
 import io.warp10.script.WarpScriptStack;
 import io.warp10.script.WarpScriptStack.Macro;
 import io.warp10.script.functions.SNAPSHOT;
+import io.warp10.storm.ext.StormDefaultWarpScriptExtension;
 
 import java.io.IOException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Parameter;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -124,7 +120,7 @@ public class WarpScriptNode implements IRichBolt, IRichSpout, Serializable {
     MemoryWarpScriptStack stack = new MemoryWarpScriptStack(null, null, properties);
     stack.maxLimits();
     
-    WarpScriptLib.register(StormWarpScriptExtension.getInstance());
+    WarpScriptLib.register(StormDefaultWarpScriptExtension.getInstance());
     return stack;
   }
   

@@ -11,6 +11,7 @@ public class StormWarpScriptExtension extends WarpScriptExtension {
   
   static {
     functions.put("MQTTSPOUT", new MQTTSPOUT("MQTTSPOUT"));
+    functions.put("_storm.LOG", new STORMLOG("_storm.LOG"));
   }
   
   @Override
