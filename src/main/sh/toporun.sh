@@ -169,5 +169,5 @@ java ${JAVA_OPTS} -cp ${CLASSPATH} io.warp10.storm.WarpScriptTopology "${TOPOLOG
 
 if [ "x" != "x${DYNJAR}" ]
 then
-#  rm "${DYNJAR}"
+  rm "${DYNJAR}"
 fi
