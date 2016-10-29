@@ -63,9 +63,13 @@ public class StormMqttSpout implements IRichSpout, Snapshotable {
   public void activate() {
     MQTT mqtt = new MQTT();
     try {
-      mqtt.setHost(host);      
-      mqtt.setUserName(userName);
-      mqtt.setPassword(password);
+      mqtt.setHost(host);
+      if (null != userName) {
+        mqtt.setUserName(userName);
+      }
+      if (null != password) {
+        mqtt.setPassword(password);
+      }
       
       this.connection = mqtt.blockingConnection();
       this.connection.connect();
