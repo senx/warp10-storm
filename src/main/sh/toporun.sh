@@ -4,13 +4,6 @@
 #
 # Usage: toporun.sh file1.mc2 file2.mc2 ...
 #
-# You can set the WARP10_CONFIG environment variable to the
-# path of the Warp 10 config file.
-#
-# If the config file is not specified, WarpScript will be
-# configured with microseconds as the time unit and REXEC
-# will be enabled
-#
 
 TMPDIR=""
 
@@ -36,17 +29,10 @@ WARP10_STORM_JAR=build/libs/warp10-storm.jar
 JAR=jar
 JAVA_OPTS="-Ddebug"
 
-if [ "x" != "x${WARP10_CONFIG}" ]
-then
-  JAVA_OPTS="${JAVA_OPTS} -Dwarp10.config=${WARP10_CONFIG}"
-fi
-
 CLASSPATH=`grep ' path=' .classpath|grep 'kind="lib"'|sed -e 's/.* path="//' -e 's/".*//'|while read f
 do
   /bin/echo -n $f:
 done`
-
-CLASSPATH="${CLASSPATH}:."
 
 ##
 ## Parse arguments
@@ -56,10 +42,14 @@ MACROS=''
 JARS=''
 NODES=''
 CONFIG=''
+LOCAL=''
 
 OPTIND=1
-while getopts ":t:j:m:c:" opt; do
+while getopts ":lt:j:m:c:" opt; do
   case $opt in
+    l)
+      LOCAL="-Dstorm.local"
+      ;;
     t)
       TOPOLOGY="${OPTARG}"
       ;;
@@ -83,6 +73,11 @@ while getopts ":t:j:m:c:" opt; do
   esac
 done
 
+if [ "x" != "x${CONFIG}" ]
+then
+  JAVA_OPTS="${JAVA_OPTS} -Dwarp10.config=${CONFIG}"
+fi
+
 if [ "x" == "x${TOPOLOGY}" ]
 then
   die "You MUST specify the topology name using -t xxx."
@@ -96,37 +91,65 @@ checkpath ${JARS} ${MACROS} ${CONFIG} ${NODES}
 
 DYNJAR="`pwd`/warp10-storm-`date +%s`-$$.jar"
 
-##
-## Merge the jars
-##
-
-echo "[Merging jars ${JARS} into ${DYNJAR}]"
-
-cp ${WARP10_STORM_JAR} ${DYNJAR} || die "Error copying base jar ${WARP10_STORM_JAR} into ${DYNJAR}"
-
-if [ "x" != "x${JARS}" ]
+if [ "x" == "x${LOCAL}" ]
 then
-  TMPDIR="${DYNJAR}.tmp"
 
-  for jar in ${JARS}
-  do
-    mkdir "${TMPDIR}"
-    ln -s "${jar}" $$.jar
-    cd "${TMPDIR}"
-    ${JAR} xf ../$$.jar || die "Error unpacking jar ${jar}"
-    cd ..
-    ${JAR} uf ${DYNJAR} -C ${TMPDIR} '*' || die "Error merging ${jar} into ${DYNJAR}"
-    rm -rf "${TMPDIR}"
-    rm -rf $$.jar
-  done
+  ##
+  ## Merge the jars
+  ##
+
+  echo "[Merging jars ${JARS} into ${DYNJAR}]"
+
+  cp ${WARP10_STORM_JAR} ${DYNJAR} || die "Error copying base jar ${WARP10_STORM_JAR} into ${DYNJAR}"
+
+  if [ "x" != "x${JARS}" ]
+  then
+    TMPDIR="${DYNJAR}.tmp"
+
+    for jar in ${JARS}
+    do
+      mkdir "${TMPDIR}"
+      ln -s "${jar}" $$.jar
+      cd "${TMPDIR}"
+      ${JAR} xf ../$$.jar || die "Error unpacking jar ${jar}"
+      cd ..
+      ${JAR} uf ${DYNJAR} -C ${TMPDIR} '*' || die "Error merging ${jar} into ${DYNJAR}"
+      rm -rf "${TMPDIR}"
+      rm -rf $$.jar
+    done
+  fi
+
+  JAVA_OPTS="${JAVA_OPTS} -Dstorm.jar=${DYNJAR}"
+
+  ##
+  ## Add nodes
+  ##
+
+  echo "[Merging nodes ${NODES} into ${DYNJAR}]"
+  ${JAR} uf ${DYNJAR} ${NODES} || die "Error merging nodes"
+
+else
+
+  CLASSPATH="${WARP10_STORM_JAR}:${CLASSPATH}"
+
+  if [ "x" != "x${JARS}" ]
+  then
+    for jar in ${JARS}
+    do
+      CLASSPATH="${CLASSPATH}:${jar}"
+      echo ${CLASSPATH}
+    done
+  fi
+
+  JAVA_OPTS="${JAVA_OPTS} -Dstorm.jar=${WARP10_STORM_JAR}"
+
+  ##
+  ## Add nodes
+  ##
+
+  echo "[Merging nodes ${NODES} into ${DYNJAR}]"
+  ${JAR} cf ${DYNJAR} ${NODES} || die "Error merging nodes"
 fi
-
-##
-## Add nodes and configuration
-##
-
-echo "[Merging nodes ${NODES} into ${DYNJAR}]"
-${JAR} uf ${DYNJAR} ${CONFIG} ${NODES} || die "Error merging nodes"
 
 ##
 ## Merge macros
@@ -138,9 +161,13 @@ then
   ${JAR} uf ${DYNJAR} ${MACROS} || die "Error merging macros"
 fi
 
-JAVA_OPTS="${JAVA_OPTS} -Dstorm.jar=${DYNJAR}"
-CLASSPATH="${CLASSPATH}:${DYNJAR}"
+CLASSPATH="${DYNJAR}:${CLASSPATH}:."
+
+JAVA_OPTS="${JAVA_OPTS} ${LOCAL}"
 
 java ${JAVA_OPTS} -cp ${CLASSPATH} io.warp10.storm.WarpScriptTopology "${TOPOLOGY}" ${NODES}
 
-rm ${DYNJAR}
+if [ "x" != "x${DYNJAR}" ]
+then
+#  rm "${DYNJAR}"
+fi
