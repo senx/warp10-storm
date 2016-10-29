@@ -10,12 +10,12 @@ import io.warp10.script.WarpScriptStackFunction;
 
 public class MQTTSPOUT extends NamedWarpScriptFunction implements WarpScriptStackFunction {
     
-  private static final String KEY_STREAMID = "streamid";
-  private static final String KEY_HOST = "host";
-  private static final String KEY_USER = "user";
-  private static final String KEY_PASSWORD = "password";
-  private static final String KEY_topics = "topics";
-  
+  public static final String KEY_STREAMID = "streamid";
+  public static final String KEY_HOST = "host";
+  public static final String KEY_USER = "user";
+  public static final String KEY_PASSWORD = "password";
+  public static final String KEY_topics = "topics";
+
   public MQTTSPOUT(String name) {
     super(name);
   }

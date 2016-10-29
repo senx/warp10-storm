@@ -1,5 +1,10 @@
 package io.warp10.storm.ext;
 
+import io.warp10.script.WarpScriptStack;
+import io.warp10.script.functions.SNAPSHOT;
+import io.warp10.script.functions.SNAPSHOT.Snapshotable;
+
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,14 +14,13 @@ import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.Message;
 import org.fusesource.mqtt.client.QoS;
 import org.fusesource.mqtt.client.Topic;
-
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.IRichSpout;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.tuple.Fields;
 
-public class StormMqttSpout implements IRichSpout {
+public class StormMqttSpout implements IRichSpout, Snapshotable {
   
   private TopologyContext context = null;
   private Map<String,Object> conf = null;
@@ -32,11 +36,15 @@ public class StormMqttSpout implements IRichSpout {
   
   private final Topic[] topics;
   
+  private final List<String> subscriptions;
+  
   public StormMqttSpout(String streamId, String host, String userName, String password, List<String> subscriptions) {
     this.streamId = streamId;
     this.host = host;
     this.userName = userName;
     this.password = password;
+    this.subscriptions = subscriptions;
+    
     this.topics = new Topic[subscriptions.size()];
     
     for (int i = 0; i < topics.length; i++) {
@@ -118,5 +126,29 @@ public class StormMqttSpout implements IRichSpout {
     } catch (Exception e) {
       return;
     }    
+  }
+  
+  
+  @Override
+  public String snapshot() {
+    StringBuilder sb = new StringBuilder();
+
+    try {
+      sb.append("{ ");
+      SNAPSHOT.addElement(sb, MQTTSPOUT.KEY_HOST);
+      SNAPSHOT.addElement(sb, this.host);
+      SNAPSHOT.addElement(sb, MQTTSPOUT.KEY_USER);
+      SNAPSHOT.addElement(sb, this.userName);
+      SNAPSHOT.addElement(sb, MQTTSPOUT.KEY_PASSWORD);
+      SNAPSHOT.addElement(sb, this.password);
+      SNAPSHOT.addElement(sb, MQTTSPOUT.KEY_STREAMID);
+      SNAPSHOT.addElement(sb, this.streamId);
+      SNAPSHOT.addElement(sb, MQTTSPOUT.KEY_topics);
+      SNAPSHOT.addElement(sb, this.subscriptions);
+      sb.append("} ");
+      sb.append("MQTTSPOUT ");
+    } catch (Exception e) {      
+    }
+    return sb.toString();
   }
 }
