@@ -33,6 +33,7 @@ public class WarpScriptTopology {
     
     for (String file: files) {
       //BufferedReader br = new BufferedReader(new FileReader(file));
+      System.out.println("[Loading " + file + "]");
       InputStream in = this.getClass().getClassLoader().getResourceAsStream(file);
       BufferedReader br = new BufferedReader(new InputStreamReader(in));
       
@@ -80,8 +81,6 @@ public class WarpScriptTopology {
 
     Config conf = new Config();
     
-    boolean local = false;
-    
     Map<String,String> env = new HashMap<String,String>(System.getenv());
     for (Entry<Object,Object> entry: System.getProperties().entrySet()) {
       env.put(entry.getKey().toString(), entry.getValue().toString());
@@ -89,12 +88,15 @@ public class WarpScriptTopology {
     
     conf.setEnvironment(env);
     //conf.setClasspath(System.getenv("CLASSPATH"));
+
+    boolean local = null != System.getProperty("storm.local");
     
     if (local) {
-      LocalCluster cluster = new LocalCluster(conf);
-
+      System.out.println("Launching local topology.");
+      LocalCluster cluster = new LocalCluster();
       cluster.submitTopology(topologyName, conf, topology);
     } else {
+      System.out.println("Launching distributed topology.");
       conf.setNumWorkers(20);
       conf.setMaxSpoutPending(5000);
       StormSubmitter.submitTopology(topologyName, conf, topology);
@@ -103,8 +105,6 @@ public class WarpScriptTopology {
   
   public static void main(String... args) throws Exception {
 
-    System.out.println("LAUNCHING TOPOLOGY");
-    
     String topologyName = args[0];
     
     List<String> files = new ArrayList<String>();
@@ -113,15 +113,14 @@ public class WarpScriptTopology {
       files.add(args[i]);
     }
     
-    if (null != System.getProperty(WARP10_CONFIG)) {      
-      WarpConfig.setProperties(new InputStreamReader(WarpScriptTopology.class.getResourceAsStream(System.getProperty(WARP10_CONFIG))));
+    if (null != System.getProperty(WARP10_CONFIG)) {
+      WarpConfig.setProperties(new FileReader(System.getProperty(WARP10_CONFIG)));
     } else {
       if (null == System.getProperty(Configuration.WARP_TIME_UNITS)) {
         System.setProperty(Configuration.WARP_TIME_UNITS, "us");
       }
       
       System.setProperty(Configuration.WARPSCRIPT_REXEC_ENABLE, "true");      
-      
       WarpConfig.setProperties((String) null); 
     }
     

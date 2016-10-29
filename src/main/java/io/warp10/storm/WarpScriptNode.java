@@ -210,7 +210,7 @@ public class WarpScriptNode implements IRichBolt, IRichSpout, Serializable {
       this.wrapped = true;
       
       try {
-        if (this.bolt) {
+        if (this.bolt) {          
           this.wrappedBolt = (IRichBolt) config.get(KEY_CLASS);
         } else {
           this.wrappedSpout = (IRichSpout) config.get(KEY_CLASS);
@@ -498,6 +498,7 @@ public class WarpScriptNode implements IRichBolt, IRichSpout, Serializable {
     synchronized (WarpConfig.class) {
       if(!WarpConfig.isPropertiesSet()) {
         WarpConfig.setProperties(sw);
+        WarpScriptLib.registerExtensions();
       }
     }
     
