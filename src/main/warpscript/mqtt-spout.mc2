@@ -1,0 +1,33 @@
+//
+// MQTT Spout
+//
+// This spout subscribes to MQTT topics and pushes data as (topic,payload) tuples
+// down the defined stream.
+//
+
+{
+  //
+  // Type of the node
+  //
+  'type' 'spout'
+
+  //
+  // Unique id of the node
+  //
+  'id' 'mqtt-spout-0'
+
+  'class' {
+    'streamid' 'mqtt-stream-0' // Id of the output stream for the MQTT Spout
+    //'host' 'tcp://iot.eclipse.org:1883/' // URL of the MQTT endpoint
+    'host' 'tcp://127.0.0.1:1883/' // URL of the MQTT endpoint
+    'user' 'user' // User name to use for authenticating to the endpoint
+    'password' 'pass' // Password associated with the user
+    'topics' [ '/foo/1# AT_MOST_ONCE' '/bar/# EXACTLY_ONCE' ] // List of topics+QOS we want to subscribe to
+  } MQTTSPOUT // Call the MQTTSPOUT function from the StowmWarpScriptExtension, it will leave on the stack an instance of the Spout
+
+  //
+  // Parallelism with which to run the spout
+  // This should generally be left to 1
+  //
+  'parallelism' 1
+}
