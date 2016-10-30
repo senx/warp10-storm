@@ -141,7 +141,7 @@ def getVersionName = { ->
 
     pkg {
       repo = 'maven'
-      name = 'warp10-flink'
+      name = 'warp10-storm'
       licenses = ['Apache-2.0']
       vcsUrl = 'https://github.com/cityzendata/warp10-storm.git'
       version {
