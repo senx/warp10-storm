@@ -112,9 +112,13 @@ public class WarpScriptTopology {
     for (int i = 1; i < args.length; i++) {
       files.add(args[i]);
     }
-    
+
     if (null != System.getProperty(WARP10_CONFIG)) {
-      WarpConfig.setProperties(new FileReader(System.getProperty(WARP10_CONFIG)));
+      //
+      WarpScriptNode node = new WarpScriptNode();
+      System.out.println("[Loading configuration " + node.getClass().getClassLoader().getResource(System.getProperty(WARP10_CONFIG)) + "]");
+      WarpConfig.setProperties(new InputStreamReader(node.getClass().getClassLoader().getResourceAsStream(System.getProperty(WARP10_CONFIG))));
+      //WarpConfig.setProperties(new FileReader(System.getProperty(WARP10_CONFIG)));
     } else {
       if (null == System.getProperty(Configuration.WARP_TIME_UNITS)) {
         System.setProperty(Configuration.WARP_TIME_UNITS, "us");

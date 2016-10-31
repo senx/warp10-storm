@@ -147,8 +147,8 @@ else
   ## Add nodes
   ##
 
-  echo "[Merging nodes ${NODES} into ${DYNJAR}]"
-  ${JAR} cf ${DYNJAR} ${NODES} || die "Error merging nodes"
+  echo "[Merging configuration and nodes ${NODES} into ${DYNJAR}]"
+  ${JAR} cf ${DYNJAR} ${CONFIG} ${NODES} || die "Error merging nodes"
 fi
 
 ##
