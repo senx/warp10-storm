@@ -33,7 +33,7 @@ public class WarpScriptTopology {
     
     for (String file: files) {
       //BufferedReader br = new BufferedReader(new FileReader(file));
-      System.out.println("[Loading " + file + "]");
+      System.out.println("[Loading " + this.getClass().getClassLoader().getResource(file) + "]");
       InputStream in = this.getClass().getClassLoader().getResourceAsStream(file);
       BufferedReader br = new BufferedReader(new InputStreamReader(in));
       
