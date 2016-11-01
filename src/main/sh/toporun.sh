@@ -43,10 +43,14 @@ JARS=''
 NODES=''
 CONFIG=''
 LOCAL=''
+KEEPJAR=''
 
 OPTIND=1
-while getopts ":lt:j:m:c:" opt; do
+while getopts ":klt:j:m:c:" opt; do
   case $opt in
+    k)
+      KEEPJAR="true"
+      ;;
     l)
       LOCAL="-Dstorm.local"
       ;;
@@ -169,5 +173,8 @@ java ${JAVA_OPTS} -cp ${CLASSPATH} io.warp10.storm.WarpScriptTopology "${TOPOLOG
 
 if [ "x" != "x${DYNJAR}" ]
 then
-  rm "${DYNJAR}"
+  if [ "x" == "x${KEEPJAR}" ]
+  then
+    rm "${DYNJAR}"
+  fi
 fi
