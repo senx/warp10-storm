@@ -112,7 +112,7 @@ def getVersionName = { ->
     //
     // WarpScript
     //
-    compile group: 'io.warp10', name: 'warpscript', version: '1.0.17'
+    compile group: 'io.warp10', name: 'warpscript', version: '1.1.0'
 
     //
     // Apache Storm
