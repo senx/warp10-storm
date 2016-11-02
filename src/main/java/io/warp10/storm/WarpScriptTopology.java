@@ -34,7 +34,7 @@ public class WarpScriptTopology {
     
     for (String file: files) {
       //BufferedReader br = new BufferedReader(new FileReader(file));
-      String names[] = file.split(File.separator);
+      String[] names = file.split(File.separator);
       String fileName = "warpscript/" + names[names.length - 1];
       System.out.println("[Loading " + this.getClass().getClassLoader().getResource(fileName) + "]");
       InputStream in = this.getClass().getClassLoader().getResourceAsStream(fileName);
@@ -119,8 +119,11 @@ public class WarpScriptTopology {
     if (null != System.getProperty(WARP10_CONFIG)) {
       //
       WarpScriptNode node = new WarpScriptNode();
-      System.out.println("[Loading configuration " + node.getClass().getClassLoader().getResource(System.getProperty(WARP10_CONFIG)) + "]");
-      WarpConfig.setProperties(new InputStreamReader(node.getClass().getClassLoader().getResourceAsStream(System.getProperty(WARP10_CONFIG))));
+
+      String[] configs = System.getProperty(WARP10_CONFIG).split(File.separator);
+      String config = configs[configs.length - 1];
+      System.out.println("[Loading configuration " + node.getClass().getClassLoader().getResource(config) + "]");
+      WarpConfig.setProperties(new InputStreamReader(node.getClass().getClassLoader().getResourceAsStream(config)));
       //WarpConfig.setProperties(new FileReader(System.getProperty(WARP10_CONFIG)));
     } else {
       if (null == System.getProperty(Configuration.WARP_TIME_UNITS)) {
