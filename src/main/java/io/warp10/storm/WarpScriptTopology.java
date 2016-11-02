@@ -6,6 +6,7 @@ import io.warp10.script.WarpScriptLib;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -33,8 +34,10 @@ public class WarpScriptTopology {
     
     for (String file: files) {
       //BufferedReader br = new BufferedReader(new FileReader(file));
-      System.out.println("[Loading " + this.getClass().getClassLoader().getResource(file) + "]");
-      InputStream in = this.getClass().getClassLoader().getResourceAsStream(file);
+      String names[] = file.split(File.separator);
+      String fileName = names[names.length - 1];
+      System.out.println("[Loading " + this.getClass().getClassLoader().getResource(fileName) + "]");
+      InputStream in = this.getClass().getClassLoader().getResourceAsStream(fileName);
       BufferedReader br = new BufferedReader(new InputStreamReader(in));
       
       StringBuilder sb = new StringBuilder();
