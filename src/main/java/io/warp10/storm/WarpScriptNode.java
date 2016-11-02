@@ -91,11 +91,11 @@ public class WarpScriptNode implements IRichBolt, IRichSpout, Serializable {
   private IRichBolt wrappedBolt = null;
   
   public WarpScriptNode() {
-    initStack();
   }
   
   public WarpScriptNode(String code) throws WarpScriptException {
     this();
+    initStack();
         
     //
     // Execute the bolt code, this code should leave on the stack a map with the following fields:
@@ -115,7 +115,14 @@ public class WarpScriptNode implements IRichBolt, IRichSpout, Serializable {
   }
   
   private static WarpScriptStack stackInit() {
-    Properties properties = new Properties();
+    
+    Properties properties;
+    
+    if (WarpConfig.isPropertiesSet()) {
+      properties = WarpConfig.getProperties();
+    } else {
+      properties = new Properties();
+    }
     
     MemoryWarpScriptStack stack = new MemoryWarpScriptStack(null, null, properties);
     stack.maxLimits();
@@ -471,6 +478,7 @@ public class WarpScriptNode implements IRichBolt, IRichSpout, Serializable {
   }
   
   private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+    
     Properties props = WarpConfig.getProperties();
     
     StringBuilder sb = new StringBuilder();
@@ -492,7 +500,7 @@ public class WarpScriptNode implements IRichBolt, IRichSpout, Serializable {
     StringReader sw = new StringReader(properties);
     
     synchronized (WarpConfig.class) {
-      if(!WarpConfig.isPropertiesSet()) {
+      if(!WarpConfig.isPropertiesSet()) {        
         WarpConfig.setProperties(sw);
         WarpScriptLib.registerExtensions();
       }
