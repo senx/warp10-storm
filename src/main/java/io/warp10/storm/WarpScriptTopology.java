@@ -50,7 +50,6 @@ public class WarpScriptTopology {
       
       br.close();
       
-      //WarpScriptNode bolt = new WarpScriptNode(sb.toString());
       List<WarpScriptNode> subnodes = WarpScriptNode.parse(sb.toString());
       
       nodes.addAll(subnodes);
