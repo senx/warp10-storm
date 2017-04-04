@@ -148,7 +148,7 @@ public class WarpScriptNode implements IRichBolt, IRichSpout, Serializable {
     // We snapshot the symbols also
     //
     
-    SNAPSHOT snapshot = new SNAPSHOT("", true, false);
+    SNAPSHOT snapshot = new SNAPSHOT("", true, false, true);
     
     for (Object level: levels) {      
       stack.push(level);

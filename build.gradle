@@ -112,12 +112,12 @@ def getVersionName = { ->
     //
     // WarpScript
     //
-    compile group: 'io.warp10', name: 'warpscript', version: '1.1.0'
+    compile group: 'io.warp10', name: 'warpscript', version: '1.2.7-rc1'
 
     //
     // Apache Storm
     //
-    compile group: 'org.apache.storm', name: 'storm-core', version: '1.0.2'
+    compile group: 'org.apache.storm', name: 'storm-core', version: '1.1.0'
 
     //
     // MQTT Client
